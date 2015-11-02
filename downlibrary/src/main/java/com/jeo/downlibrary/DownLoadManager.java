@@ -24,6 +24,7 @@ public class DownLoadManager {
     private ExecutorService pool;
     //by jeo
     private Handler handler = new Handler();
+
     private DownLoadManager() {
 
     }
@@ -67,7 +68,7 @@ public class DownLoadManager {
             return;
         }
 
-        DownLoadOperator operator = new DownLoadOperator(task);
+        DownLoadOperator operator = new DownLoadOperator(this, task);
         taskOperators.put(task, operator);
 
         if (listener != null) {
@@ -93,7 +94,7 @@ public class DownLoadManager {
             return;
         }
 
-        DownLoadOperator operator = new DownLoadOperator(task);
+        DownLoadOperator operator = new DownLoadOperator(this, task);
         taskOperators.put(task, operator);
 
         if (listener != null) {
@@ -136,7 +137,7 @@ public class DownLoadManager {
 
         DownLoadOperator operator = taskOperators.get(task);
         if (operator != null) {
-            operator.pauseDownLoad(task);
+            operator.pauseDownLoad();
         }
     }
 
@@ -147,7 +148,7 @@ public class DownLoadManager {
 
         DownLoadOperator operator = taskOperators.get(task);
         if (operator != null) {
-            operator.resumeDownLoad(task);
+            operator.resumeDownLoad();
         }
     }
 
@@ -158,7 +159,7 @@ public class DownLoadManager {
 
         DownLoadOperator operator = taskOperators.get(task);
         if (operator != null) {
-            operator.cancelDownLoad(task);
+            operator.cancelDownLoad();
         }
     }
 
@@ -174,115 +175,122 @@ public class DownLoadManager {
         return provider.findDownLoadTaskById(id);
     }
 
-    public List<DownLoadTask> getAllDownLoadTask(){
+    public List<DownLoadTask> getAllDownLoadTask() {
         return provider.getAllDownLoadTask();
     }
 
 
-    private void removeTask(DownLoadTask task){
+    private void removeTask(DownLoadTask task) {
         try {
             taskOperators.remove(task);
             taskListeners.remove(task);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /************************************************/
-    void onUpdateDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+    void onUpdateDownLoadTask(final DownLoadTask task, final long finishSize, final long speed) {
         task.setStatus(DownLoadTask.STATUS_RUNNING);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onUpdate(task);
                 }
             }
         });
     }
-    void onStartDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onStartDownLoadTask(final DownLoadTask task) {
         task.setStatus(DownLoadTask.STATUS_PENDDING);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onStart(task);
                 }
             }
         });
     }
-    void onPauseDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onPauseDownLoadTask(final DownLoadTask task) {
         task.setStatus(DownLoadTask.STATUS_PAUSED);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onPause(task);
                 }
             }
         });
     }
-    void onResumeDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onResumeDownLoadTask(final DownLoadTask task) {
         task.setStatus(DownLoadTask.STATUS_RUNNING);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onResume(task);
                 }
             }
         });
     }
-    void onCancelDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onCancelDownLoadTask(final DownLoadTask task) {
         task.setStatus(DownLoadTask.STATUS_CANCEL);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onResume(task);
                 }
             }
         });
     }
-    void onSuccessDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onSuccessDownLoadTask(final DownLoadTask task) {
         task.setStatus(DownLoadTask.STATUS_FINISH);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onSuccess(task);
                 }
             }
         });
     }
-    void onFailedDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onFailedDownLoadTask(final DownLoadTask task) {
         task.setStatus(DownLoadTask.STATUS_ERROR);
         final DownLoadListener listener = taskListeners.get(task);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 provider.updateDownTask(task);
-                if (listener!=null){
+                if (listener != null) {
                     listener.onFailed(task);
                 }
             }
         });
     }
-    void onRetryDownLoadTask(final DownLoadTask task,final long finishSize,final long speed){
+
+    void onRetryDownLoadTask(final DownLoadTask task) {
         final DownLoadListener listener = taskListeners.get(task);
-        if (listener!=null){
+        if (listener != null) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -292,6 +300,12 @@ public class DownLoadManager {
         }
     }
 
+    /*********************************************/
+    public DownLoadConfig getConfig() {
+        return config;
+    }
 
-
+    public void setConfig(DownLoadConfig config) {
+        this.config = config;
+    }
 }

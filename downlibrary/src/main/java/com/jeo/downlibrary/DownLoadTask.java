@@ -4,21 +4,12 @@ package com.jeo.downlibrary;
  * Created by 志文 on 2015/11/2 0002.
  */
 public class DownLoadTask {
-//    public static final String ID="_id";
-//    public static final String NAME="NAME";
-//    public static final String UEL="URL";
-//    public static final String PATH="PATH";
-//    public static final String MD5="MD5";
-//    public static final String FINISH_SIZE="FINISH_SIZE";
-//    public static final String ALL_SIZE="ALL_SIZE";
-//    public static final String STATUS="STATUS";
-
     public static final int STATUS_PENDDING = 1;
     public static final int STATUS_RUNNING = 2;
     public static final int STATUS_PAUSED = 3;
     public static final int STATUS_CANCEL = 4;
-    public static final int STATUS_FINISH=5;
-    public static final int STATUS_ERROR=6;
+    public static final int STATUS_FINISH = 5;
+    public static final int STATUS_ERROR = 6;
 
     private int id;
     private String name;
@@ -29,22 +20,24 @@ public class DownLoadTask {
     private long allSize;
     private int status;
 
-    public DownLoadTask(){
+    private long speed;//下载速度
+
+    public DownLoadTask() {
         finishSize = 0;
-        allSize=0;
+        allSize = 0;
         status = STATUS_PENDDING;
     }
 
     @Override
     public boolean equals(Object o) {
-        if(o==null){
+        if (o == null) {
             return false;
         }
 
-        if(!(o instanceof DownLoadTask)){
+        if (!(o instanceof DownLoadTask)) {
             return false;
         }
-        DownLoadTask task = (DownLoadTask)o;
+        DownLoadTask task = (DownLoadTask) o;
         return this.url.equals(task.getUrl());
     }
 
@@ -55,7 +48,7 @@ public class DownLoadTask {
 
     @Override
     public String toString() {
-        return "url:"+url+" name:"+name;
+        return "url:" + url + " name:" + name;
     }
 
     public int getId() {
@@ -120,5 +113,13 @@ public class DownLoadTask {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public long getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(long speed) {
+        this.speed = speed;
     }
 }

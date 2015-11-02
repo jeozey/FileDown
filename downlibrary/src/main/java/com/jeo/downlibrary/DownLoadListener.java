@@ -5,11 +5,17 @@ package com.jeo.downlibrary;
  */
 public interface DownLoadListener {
 
-    public void onStart(DownLoadTask task);
-    public void onUpdate(DownLoadTask task);
-    public void onPause(DownLoadTask task);
-    public void onResume(DownLoadTask task);
-    public void onSuccess(DownLoadTask task);
-    public void onFailed(DownLoadTask task);
-    public void onRetry(DownLoadTask task);
+    void onStart(DownLoadTask task);
+
+    void onUpdate(DownLoadTask task);
+
+    void onPause(DownLoadTask task);
+
+    void onResume(DownLoadTask task);
+
+    void onSuccess(DownLoadTask task);
+
+    void onFailed(DownLoadTask task);
+
+    void onRetry(DownLoadTask task);
 }
