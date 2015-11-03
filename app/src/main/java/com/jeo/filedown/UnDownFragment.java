@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ProgressBar;
 
+import com.jeo.downlibrary.DownLoadManager;
+import com.jeo.downlibrary.DownLoadTask;
 import com.jeo.filedown.eu.erikw.PullToRefreshListView;
 
 import java.util.ArrayList;
@@ -61,9 +63,10 @@ public class UnDownFragment extends Fragment {
 
                 List<String> urls;
                 urls = Arrays.asList(Constants.URLS);
-                List<FileItem> files = new ArrayList<>();
+                List<DownLoadTask> files = new ArrayList<>();
                 for (String url : urls) {
-                    FileItem item = new FileItem(url);
+                    DownLoadTask item = new DownLoadTask();
+                    item.setUrl(url);
                     files.add(item);
                 }
                 adapter.setFiles(files);
@@ -93,8 +96,28 @@ public class UnDownFragment extends Fragment {
 
         });
 
-        adapter = new DownAdapter(null, getActivity().getBaseContext(), new MyHandler());
+        List<DownLoadTask> tasks = historyDownLoadTask();
+        adapter = new DownAdapter(tasks, getActivity().getBaseContext(), new MyHandler());
         listView.setAdapter(adapter);
+    }
+
+    private List<DownLoadTask> historyDownLoadTask() {
+        List<DownLoadTask> tasks = new ArrayList<>();
+        List<DownLoadTask> tmpTasks = null;
+        tmpTasks = DownLoadManager.getInstance().getAllDownLoadTask();
+
+        for (DownLoadTask task : tmpTasks
+                ) {
+            if (DownLoadTask.STATUS_FINISH == task.getStatus()) {
+                continue;
+            }
+            if (DownLoadTask.STATUS_RUNNING == task.getStatus()) {
+                task.setStatus(DownLoadTask.STATUS_PENDDING);
+            }
+            tasks.add(task);
+
+        }
+        return tasks;
     }
 
     private class MyHandler extends Handler {
@@ -102,44 +125,59 @@ public class UnDownFragment extends Fragment {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case Constants.MSG_DOWN_FILE_PROGRESS:
-                    FileItem item = (FileItem) msg.obj;
+                    DownLoadTask item = (DownLoadTask) msg.obj;
                     updateProgressBar(item);
                     break;
             }
         }
     }
 
+    //更新过程有可能刷新列表，导致位置变化
+    private int getRightPosition(DownLoadTask task) {
+        int i = 0;
+        for (DownLoadTask t : adapter.getFiles()) {
+            if (task.getUrl().equals(t.getUrl())) {
+                return i;
+            }
+            i++;
+
+        }
+        return -1;
+    }
+
     //http://blog.csdn.net/nupt123456789/article/details/39432781  ListView的局部刷新
-    private void updateProgressBar(FileItem item) {
-        if (item == null) {
+    private void updateProgressBar(DownLoadTask task) {
+        if (task == null) {
             Log.e(TAG, "fileItem is null");
             return;
         }
-        int firstVisiablePosition = listView.getFirstVisiblePosition();
-        int lastVisiablePosition = listView.getLastVisiblePosition();
-        int position = item.getPosition();
-        Log.e(TAG, "first:" + firstVisiablePosition + " last:" + lastVisiablePosition + " pos:" + position);
         if (mScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+            int firstVisiablePosition = listView.getFirstVisiblePosition();
+            int lastVisiablePosition = listView.getLastVisiblePosition();
+//            int position = task.getPosition();
+            int position = getRightPosition(task);
+            Log.e(TAG, "first:" + firstVisiablePosition + " last:" + lastVisiablePosition + " pos:" + position);
+
             if (position >= firstVisiablePosition && position <= lastVisiablePosition) {
                 View view = listView.getChildAt(position - firstVisiablePosition + 1);
                 if (view.getTag() instanceof DownAdapter.ViewHolder) {
                     DownAdapter.ViewHolder holder = (DownAdapter.ViewHolder) view.getTag();
                     ProgressBar progressBar = holder.downProgressBar;
                     progressBar.setMax(100);
-                    if (item.getAllLength() != 0) {
-                        int percent = (int) ((100 * item.getCurrentLength()) / item.getAllLength());
+                    if (task.getAllSize() != 0) {
+                        int percent = (int) ((100 * task.getFinishSize()) / task.getAllSize());
                         progressBar.setProgress(percent);
                         holder.downPercent.setText(percent + "%");
                     }
-                    Log.e(TAG, "curr:" + progressBar.getProgress() + " max:" + progressBar.getMax() + " all:" + item.getAllLength());
-                    FileItem file = (FileItem) adapter.getItem(position);
-                    file.setCurrentLength(item.getCurrentLength());
+                    Log.e(TAG, "curr:" + progressBar.getProgress() + " max:" + progressBar.getMax() + " all:" + task.getAllSize());
+                    DownLoadTask file = (DownLoadTask) adapter.getItem(position);
+                    file.setFinishSize(task.getFinishSize());
 
                     if (progressBar.getProgress() == 100) {
                         //为什么这句没有直接调用getView
 //                        listView.getAdapter().getView(position, view, listView); // Tell the adapter to update this view
 //                   adapter.notifyDataSetChanged();
-                        ViewHolderUtil.updateViewHolder(item,holder);
+                        ViewHolderUtil.updateViewHolder(task, holder);
                     }
                 }
             } else {

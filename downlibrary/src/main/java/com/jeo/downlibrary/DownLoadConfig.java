@@ -58,4 +58,38 @@ public class DownLoadConfig {
     public void setRetryTime(int retryTime) {
         this.retryTime = retryTime;
     }
+
+
+    public static class Builder {
+        private DownLoadConfig config;
+
+        public Builder(Context context) {
+            config = new DownLoadConfig();
+        }
+
+        public DownLoadConfig build() {
+            return config;
+        }
+
+        public Builder setDownloadSavePath(String downLoadSavePath) {
+            config.downLoadSavePath = downLoadSavePath;
+            return this;
+        }
+
+        public Builder setMaxDownloadThread(int maxDownLoadThread) {
+            config.maxDownLoadThread = maxDownLoadThread;
+            return this;
+        }
+
+        public Builder setRetryTime(int retryTime) {
+            config.retryTime = retryTime;
+            return this;
+        }
+
+        public Builder setDownloadProvider(DownLoadProvider provider) {
+            config.provider = provider;
+            return this;
+        }
+
+    }
 }

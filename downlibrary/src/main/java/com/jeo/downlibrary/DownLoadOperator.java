@@ -1,6 +1,8 @@
 package com.jeo.downlibrary;
 
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +69,7 @@ public class DownLoadOperator implements Runnable {
     private RandomAccessFile getDownLoadFile() throws IOException {
         String fileName = System.currentTimeMillis() + "_file";
         File file = new File(manager.getConfig().getDownLoadSavePath(), fileName);
-        if (file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) {
+        if (!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) {
             throw new IOException("can not create downLoad folder");
         }
 
@@ -88,8 +90,10 @@ public class DownLoadOperator implements Runnable {
             HttpURLConnection conn = null;
             InputStream is = null;
             try {
+                Log.e(TAG, "run...");
                 raf = getDownLoadFile();
                 conn = initConnection();
+                Log.e(TAG, "initConnection...");
 
                 task.setPath(filePath);
                 task.setAllSize(conn.getContentLength());
@@ -104,6 +108,7 @@ public class DownLoadOperator implements Runnable {
                 long total = task.getFinishSize();
                 long prevTime = System.currentTimeMillis();
                 long achieveSize = total;
+                long speed = 0;
                 while (!stopFlg && (count = is.read(buffer)) != -1) {
                     while (pauseFlg) {
                         manager.onPauseDownLoadTask(task);
@@ -116,33 +121,33 @@ public class DownLoadOperator implements Runnable {
                             }
                         }
                     }
+                    Log.e(TAG, "total:" + total);
                     raf.write(buffer, 0, count);
                     total += count;
 
                     long tmpSize = total - achieveSize;
                     if (tmpSize > READ_BUFFER_SIZE) {
                         long tmpTime = System.currentTimeMillis() - prevTime;
-                        long speed = tmpSize * 1000 / tmpTime;
-                        achieveSize = total;
-                        prevTime = System.currentTimeMillis();
+                        if (tmpTime != 0) {
+                            speed = tmpSize * 1000 / tmpTime;
+                            achieveSize = total;
+                            prevTime = System.currentTimeMillis();
 
-                        task.setFinishSize(total);
-                        task.setSpeed(speed);
-                        manager.onUpdateDownLoadTask(task, total, speed);
+                            task.setFinishSize(total);
+                            task.setSpeed(speed);
+                            manager.onUpdateDownLoadTask(task, total, speed);
+                        }
                     }
                 }
-
                 //downLoad finish
                 long tmpSize = total - achieveSize;
                 long tmpTime = System.currentTimeMillis() - prevTime;
-                long speed = tmpSize * 1000 / tmpTime;
-                achieveSize = total;
-                prevTime = System.currentTimeMillis();
-
+                if (tmpTime != 0) {
+                    speed = tmpSize * 1000 / tmpTime;
+                }
                 task.setFinishSize(total);
                 task.setSpeed(speed);
                 manager.onUpdateDownLoadTask(task, total, speed);
-
 
                 if (stopFlg) {
                     manager.onCancelDownLoadTask(task);

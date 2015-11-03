@@ -141,15 +141,17 @@ public class DownLoadManager {
         }
     }
 
-    public void resumeDownLoad(DownLoadTask task) {
+    public boolean resumeDownLoad(DownLoadTask task) {
         if (task == null) {
-            return;
+            return false;
         }
 
         DownLoadOperator operator = taskOperators.get(task);
         if (operator != null) {
             operator.resumeDownLoad();
+            return true;
         }
+        return false;
     }
 
     public void cancelDownLoad(DownLoadTask task) {

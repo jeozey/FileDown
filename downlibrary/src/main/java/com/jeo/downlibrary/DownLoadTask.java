@@ -20,6 +20,7 @@ public class DownLoadTask {
     private long allSize;
     private int status;
 
+    private int position;//listView 所处位置
     private long speed;//下载速度
 
     public DownLoadTask() {
@@ -48,7 +49,7 @@ public class DownLoadTask {
 
     @Override
     public String toString() {
-        return "url:" + url + " name:" + name;
+        return "url:" + url + " name:" + name + " finishSize:" + finishSize + " allSize:" + allSize + " status:" + status;
     }
 
     public int getId() {
@@ -121,5 +122,13 @@ public class DownLoadTask {
 
     public void setSpeed(long speed) {
         this.speed = speed;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

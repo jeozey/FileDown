@@ -21,8 +21,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String STATUS = "STATUS";
     public static final String CREATE_TIME = "CREATE_TIME";
 
-    private static final String DB_CREATE = "CREATE TABLE IF NOT EXISTS FILE_DOWN " + TABLE_NAME + "(" +
-            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + NAME + " VARCHAR," + URL + " VARCHAR,PATH VARCHAR," + PATH + " VARCHAR," +
+    private static final String DB_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" +
+            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + NAME + " VARCHAR," + URL + " VARCHAR," + PATH + " VARCHAR," +
             MD5 + " VARCHAR," + FINISH_SIZE + " LONG," + ALL_SIZE + " LONG," + STATUS + " VARCHAR," + CREATE_TIME + " DATE)";
 
     public DBHelper(Context context) {

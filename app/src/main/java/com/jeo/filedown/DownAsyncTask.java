@@ -4,24 +4,20 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.RecoverySystem;
 import android.util.Log;
 
+import com.jeo.downlibrary.DownLoadTask;
 import com.jeo.filedown.com.jeo.filedown.util.OkHttpUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 import okio.Buffer;
 
 /**
  * Created by 志文 on 2015/10/30 0030.
  */
-public class DownAsyncTask extends AsyncTask<FileItem, FileItem, Integer> {
+public class DownAsyncTask extends AsyncTask<DownLoadTask, DownLoadTask, Integer> {
     private final static String FOLDER = Environment.getExternalStorageDirectory() + File.separator + "downFile" + File.separator;
 
     static {
@@ -41,9 +37,9 @@ public class DownAsyncTask extends AsyncTask<FileItem, FileItem, Integer> {
     }
 
     @Override
-    protected Integer doInBackground(FileItem... params) {
+    protected Integer doInBackground(DownLoadTask... params) {
         try {
-            final FileItem item = params[0];
+            final DownLoadTask item = params[0];
             String path = FOLDER + System.currentTimeMillis();
             File file = new File(path);
             if (!file.exists()) {
@@ -69,8 +65,8 @@ public class DownAsyncTask extends AsyncTask<FileItem, FileItem, Integer> {
 //                            fileOutputStream.write(sink.getByte(bytesRead));
 //                            fileOutputStream.write("1".getBytes());
                         }
-                        item.setCurrentLength(bytesRead);
-                        item.setAllLength(contentLength);
+                        item.setFinishSize(bytesRead);
+                        item.setAllSize(contentLength);
                         publishProgress(item);
 //                    }catch (IOException e){
 //                        e.printStackTrace();
@@ -129,7 +125,7 @@ public class DownAsyncTask extends AsyncTask<FileItem, FileItem, Integer> {
     }
 
     @Override
-    protected void onProgressUpdate(FileItem... values) {
+    protected void onProgressUpdate(DownLoadTask... values) {
         if (mHandler != null) {
             Message msg = mHandler.obtainMessage();
             msg.what = Constants.MSG_DOWN_FILE_PROGRESS;
