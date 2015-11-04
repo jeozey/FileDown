@@ -10,7 +10,7 @@ public interface DownLoadProvider {
 
     void updateDownTask(DownLoadTask task);
 
-    DownLoadTask findDownLoadTaskById(int id);
+    DownLoadTask findDownLoadTaskByUrl(String url);
 
     DownLoadTask findDownLoadTask(String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy);
 
@@ -20,6 +20,6 @@ public interface DownLoadProvider {
 
     void clearAllData();
 
-    void delete(int id);
+    void delete(String url);
 
 }

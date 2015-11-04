@@ -21,9 +21,15 @@ public class ViewHolderUtil {
             }else {
                 holder.downPercent.setText(0 + "%");
             }
-            if(item.getAllSize()!=0&&holder.downProgressBar.getProgress()==holder.downProgressBar.getMax()){
-                holder.downBtn.setText("完成");
-                holder.downBtn.setEnabled(false);
+            if(DownLoadTask.STATUS_FINISH==item.getStatus()){
+                holder.downBtn.setText("删除");
+                holder.downBtn.setEnabled(true);
+            }else if(DownLoadTask.STATUS_RUNNING==item.getStatus()){
+                holder.downBtn.setText("暂停");
+                holder.downBtn.setEnabled(true);
+            }else if(DownLoadTask.STATUS_PAUSED==item.getStatus()) {
+                holder.downBtn.setText("继续");
+                holder.downBtn.setEnabled(true);
             }else{
                 holder.downBtn.setText("开始");
                 holder.downBtn.setEnabled(true);

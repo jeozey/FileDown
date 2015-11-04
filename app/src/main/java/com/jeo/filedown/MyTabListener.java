@@ -24,13 +24,13 @@ public class MyTabListener<T extends Fragment> implements ActionBar.TabListener 
             fragment = Fragment.instantiate(mActivity, mClass.getName());
             ft.add(R.id.mainContent, fragment, null);
         }
-        ft.attach(fragment);
+        ft.show(fragment);
     }
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
         if (fragment != null) {
-            ft.detach(fragment);
+            ft.hide(fragment);
         }
     }
 

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * Created by 志文 on 2015/11/2 0002.
  */
 public class SqlLiteDownLoadProvider implements DownLoadProvider {
+    private static final String TAG = SqlLiteDownLoadProvider.class.getName();
     private static SqlLiteDownLoadProvider instance;
     private static DBHelper helper;
     private static SQLiteDatabase db;
@@ -46,6 +48,7 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
         DownLoadTask task = new DownLoadTask();
         task.setId(cursor.getInt(cursor.getColumnIndex(DBHelper._ID)));
         task.setName(cursor.getString(cursor.getColumnIndex(DBHelper.NAME)));
+        task.setPath(cursor.getString(cursor.getColumnIndex(DBHelper.PATH)));
         task.setUrl(cursor.getString(cursor.getColumnIndex(DBHelper.URL)));
         task.setMd5(cursor.getString(cursor.getColumnIndex(DBHelper.MD5)));
         task.setFinishSize(cursor.getLong(cursor.getColumnIndex(DBHelper.FINISH_SIZE)));
@@ -57,7 +60,7 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
     @Override
     public void saveDownTask(DownLoadTask task) {
         try {
-
+            Log.e(TAG, "saveDownTask:" + task);
 //            db.execSQL("INSERT INTO "+DBHelper.TABLE_NAME+" VALUES(NULL,?,?,?,?,?,?,?,date())", new Object[]{task.getName(), task.getUrl(), task.getMd5(),
 //                    task.getPath(),task.getFinishSize(),task.getAllSize(),task.getStatus()});
             ContentValues values = createDownLoadTaskValues(task);
@@ -72,8 +75,9 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
     @Override
     public void updateDownTask(DownLoadTask task) {
         try {
+            Log.e(TAG, "updateDownTask:" + task);
             ContentValues values = createDownLoadTaskValues(task);
-            db.update(DBHelper.TABLE_NAME, values, DBHelper._ID + "=?", new String[]{"" + task.getId()});
+            db.update(DBHelper.TABLE_NAME, values, DBHelper.URL + "=?", new String[]{task.getUrl()});
 
             notifyDownLoadStatusChanged(task);
         } catch (Exception e) {
@@ -83,9 +87,9 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
     }
 
     @Override
-    public DownLoadTask findDownLoadTaskById(int id) {
+    public DownLoadTask findDownLoadTaskByUrl(String url) {
         DownLoadTask task = null;
-        Cursor cursor = db.query(DBHelper.TABLE_NAME, null, DBHelper._ID + "=?", new String[]{"" + id}, null, null, null);
+        Cursor cursor = db.query(DBHelper.TABLE_NAME, null, DBHelper.URL + "=?", new String[]{url}, null, null, null);
         if (cursor.moveToNext()) {
             task = restoreDownLoadTaskFromCursor(cursor);
         }
@@ -111,7 +115,7 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
         List<DownLoadTask> tasks = new ArrayList<>();
         DownLoadTask task = null;
         Cursor cursor = db.query(DBHelper.TABLE_NAME, null, null, null, null, null, DBHelper.STATUS);
-        if (cursor.moveToNext()) {
+        while (cursor.moveToNext()) {
             task = restoreDownLoadTaskFromCursor(cursor);
             tasks.add(task);
         }
@@ -131,7 +135,7 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
     }
 
     @Override
-    public void delete(int id) {
-        db.delete(DBHelper.TABLE_NAME, DBHelper._ID + "=?", new String[]{"" + id});
+    public void delete(String url) {
+        db.delete(DBHelper.TABLE_NAME, DBHelper.URL + "=?", new String[]{url});
     }
 }

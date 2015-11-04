@@ -126,7 +126,7 @@ public class DownLoadOperator implements Runnable {
                     total += count;
 
                     long tmpSize = total - achieveSize;
-                    if (tmpSize > READ_BUFFER_SIZE) {
+                    if (tmpSize > REFRESH_INTEVAL_SIZE) {
                         long tmpTime = System.currentTimeMillis() - prevTime;
                         if (tmpTime != 0) {
                             speed = tmpSize * 1000 / tmpTime;

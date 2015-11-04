@@ -57,10 +57,11 @@ public class DownLoadManager {
     }
 
     public void addDownLoadTask(DownLoadTask task) {
-        addDownLoadTask(task, null);
+        addDownLoadTask(task, null,true);
     }
 
-    public void addDownLoadTask(DownLoadTask task, DownLoadListener listener) {
+
+    public void addDownLoadTask(DownLoadTask task, DownLoadListener listener,boolean toStart) {
         if (TextUtils.isEmpty(task.getUrl())) {
             throw new IllegalArgumentException("task's url can not be null");
         }
@@ -76,39 +77,16 @@ public class DownLoadManager {
         }
         task.setStatus(DownLoadTask.STATUS_PENDDING);
 
-        DownLoadTask historyTask = provider.findDownLoadTaskById(task.getId());
+        DownLoadTask historyTask = provider.findDownLoadTaskByUrl(task.getUrl());
         if (historyTask == null) {
             provider.saveDownTask(task);
         } else {
             provider.updateDownTask(task);
         }
 
-        pool.submit(operator);
-    }
-
-    public void addDownLoadTaskNoStart(DownLoadTask task, DownLoadListener listener) {
-        if (TextUtils.isEmpty(task.getUrl())) {
-            throw new IllegalArgumentException("task's url can not be null");
+        if(toStart){
+            pool.submit(operator);
         }
-        if (taskOperators.containsKey(task)) {
-            return;
-        }
-
-        DownLoadOperator operator = new DownLoadOperator(this, task);
-        taskOperators.put(task, operator);
-
-        if (listener != null) {
-            taskListeners.put(task, listener);
-        }
-        task.setStatus(DownLoadTask.STATUS_PENDDING);
-
-        DownLoadTask historyTask = provider.findDownLoadTaskById(task.getId());
-        if (historyTask == null) {
-            provider.saveDownTask(task);
-        } else {
-            provider.updateDownTask(task);
-        }
-
     }
 
     public DownLoadListener getDownLoadTaskListener(DownLoadTask task) {
@@ -165,16 +143,16 @@ public class DownLoadManager {
         }
     }
 
-    public DownLoadTask findDownLoadTaskById(int id) {
+    public DownLoadTask findDownLoadTaskByUrl(String url) {
         Iterator<DownLoadTask> iterator = taskOperators.keySet().iterator();
         while (iterator.hasNext()) {
             DownLoadTask task = iterator.next();
-            if (id == task.getId()) {
+            if (url.equals(task.getUrl())) {
                 return task;
 
             }
         }
-        return provider.findDownLoadTaskById(id);
+        return provider.findDownLoadTaskByUrl(url);
     }
 
     public List<DownLoadTask> getAllDownLoadTask() {
@@ -182,10 +160,11 @@ public class DownLoadManager {
     }
 
 
-    private void removeTask(DownLoadTask task) {
+    public void removeTask(DownLoadTask task) {
         try {
             taskOperators.remove(task);
             taskListeners.remove(task);
+            provider.delete(task.getUrl());
         } catch (Exception e) {
             e.printStackTrace();
         }

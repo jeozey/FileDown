@@ -1,6 +1,9 @@
 package com.jeo.filedown;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Environment;
 import android.os.Handler;
@@ -19,6 +22,7 @@ import com.jeo.downlibrary.DownLoadListener;
 import com.jeo.downlibrary.DownLoadManager;
 import com.jeo.downlibrary.DownLoadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +72,7 @@ public class DownAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        Log.e(TAG, "getView");
         final ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.file_down_item, null);
@@ -82,7 +87,6 @@ public class DownAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-
 
 
         final DownLoadListener listener = new DownLoadListener() {
@@ -123,7 +127,7 @@ public class DownAdapter extends BaseAdapter {
             public void onSuccess(DownLoadTask task) {
                 Log.e(TAG, "onSuccess");
                 tasks.remove(task);
-//
+
                 notifyDataSetChanged();
             }
 
@@ -151,7 +155,7 @@ public class DownAdapter extends BaseAdapter {
                         if (task.getStatus() == DownLoadTask.STATUS_PAUSED) {
                             boolean flg = DownLoadManager.getInstance().resumeDownLoad(task);
                             if (!flg) {
-                                DownLoadManager.getInstance().addDownLoadTask(task, listener);
+                                DownLoadManager.getInstance().addDownLoadTask(task, listener, true);
 
                                 ((Button) v).setText(res.getText(R.string.pause));
                             }
@@ -161,10 +165,11 @@ public class DownAdapter extends BaseAdapter {
 
                             ((Button) v).setText(res.getText(R.string.resume));
                         } else if (task.getStatus() == DownLoadTask.STATUS_FINISH) {
-                            tasks.remove(task);
+//                            tasks.remove(task);
+                            deleteDownTask(task);
                         } else {
                             task.setStatus(DownLoadTask.STATUS_RUNNING);
-                            DownLoadManager.getInstance().addDownLoadTask(task, listener);
+                            DownLoadManager.getInstance().addDownLoadTask(task, listener, true);
 
                             ((Button) v).setText(res.getText(R.string.pause));
                         }
@@ -183,18 +188,27 @@ public class DownAdapter extends BaseAdapter {
         return convertView;
     }
 
-    //更新过程有可能刷新列表，导致位置变化
-    private int getRightPosition(DownLoadTask task) {
-        int i = 0;
-        for (DownLoadTask t : tasks) {
-            if (task.getUrl().equals(t.getUrl())) {
-                return i;
-            }
-            i++;
-
+    private void deleteDownTask(final DownLoadTask task) {
+        if (mContext != null && mContext instanceof Activity) {
+            new AlertDialog.Builder(mContext).setTitle("是否删除该文件?").setNegativeButton("否", null).setPositiveButton("是", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        File file = new File(task.getPath());
+                        if (file.exists()) {
+                            file.delete();
+                            DownLoadManager.getInstance().removeTask(task);
+                            tasks.remove(task);
+                            notifyDataSetChanged();
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }).show();
         }
-        return -1;
     }
+
 
     public class ViewHolder {
         public TextView downTitle;

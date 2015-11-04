@@ -29,15 +29,22 @@ public class UnDownFragment extends Fragment {
     private int mScrollState;
     private PullToRefreshListView listView;
     private DownAdapter adapter;
+    private List<DownLoadTask> tasks;
 
     public UnDownFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.e(TAG, "onCreate:" + (listView == null));
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.e(TAG, "onCreateView:" + (listView == null));
         View parent = inflater.inflate(R.layout.fragment_undown, null);
         if (listView == null) {
             listView = (PullToRefreshListView) parent.findViewById(R.id.pull_to_refresh_listview);
@@ -49,6 +56,7 @@ public class UnDownFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
+        Log.e(TAG, "onAttach:" + (listView == null));
         super.onAttach(context);
 
     }
@@ -63,13 +71,15 @@ public class UnDownFragment extends Fragment {
 
                 List<String> urls;
                 urls = Arrays.asList(Constants.URLS);
-                List<DownLoadTask> files = new ArrayList<>();
                 for (String url : urls) {
+
                     DownLoadTask item = new DownLoadTask();
                     item.setUrl(url);
-                    files.add(item);
+                    if (!tasks.contains(item)) {
+                        tasks.add(item);
+                    }
                 }
-                adapter.setFiles(files);
+                adapter.setFiles(tasks);
                 adapter.notifyDataSetChanged();
 
                 // Make sure you call listView.onRefreshComplete()
@@ -96,8 +106,8 @@ public class UnDownFragment extends Fragment {
 
         });
 
-        List<DownLoadTask> tasks = historyDownLoadTask();
-        adapter = new DownAdapter(tasks, getActivity().getBaseContext(), new MyHandler());
+        tasks = historyDownLoadTask();
+        adapter = new DownAdapter(tasks, getActivity(), new MyHandler());
         listView.setAdapter(adapter);
     }
 
@@ -185,14 +195,6 @@ public class UnDownFragment extends Fragment {
             }
         }
 
-        // Update only when we're not scrolling, and only for visible views
-//        if (mScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-//            int start = listView.getFirstVisiblePosition();
-//            for(int i = start, j = listView.getLastVisiblePosition(); i<=j; i++) {
-//                View view = listView.getChildAt(i-start);
-//                listView.getAdapter().getView(i, view, listView); // Tell the adapter to update this view
-//            }
-//        }
     }
 
 }

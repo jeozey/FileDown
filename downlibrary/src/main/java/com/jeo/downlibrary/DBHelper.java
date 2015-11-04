@@ -21,8 +21,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String STATUS = "STATUS";
     public static final String CREATE_TIME = "CREATE_TIME";
 
+    //URL设置为唯一标识,所有查找也是根据url来
     private static final String DB_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" +
-            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + NAME + " VARCHAR," + URL + " VARCHAR," + PATH + " VARCHAR," +
+            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + NAME + " VARCHAR," + URL + " VARCHAR  UNIQUE," + PATH + " VARCHAR," +
             MD5 + " VARCHAR," + FINISH_SIZE + " LONG," + ALL_SIZE + " LONG," + STATUS + " VARCHAR," + CREATE_TIME + " DATE)";
 
     public DBHelper(Context context) {
