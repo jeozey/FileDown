@@ -1,6 +1,4 @@
-package com.jeo.filedown.com.jeo.filedown.util;
-
-import android.util.Log;
+package com.jeo.filedown.util;
 
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;

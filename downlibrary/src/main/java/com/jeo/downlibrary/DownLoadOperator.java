@@ -1,6 +1,7 @@
 package com.jeo.downlibrary;
 
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -152,6 +153,16 @@ public class DownLoadOperator implements Runnable {
                 if (stopFlg) {
                     manager.onCancelDownLoadTask(task);
                 } else {
+                    String fileMd5 =task.getMd5();
+                    if(!TextUtils.isEmpty(fileMd5)){
+                        String md5 = MD5Util.getMd5String(filePath);
+                        if(!fileMd5.equals(md5)){
+                            Log.e(TAG,"md5 not right:"+fileMd5+"--"+md5);
+                            manager.onFailedDownLoadTask(task);
+                            break;
+                        }
+                    }
+
                     manager.onSuccessDownLoadTask(task);
                 }
                 break;

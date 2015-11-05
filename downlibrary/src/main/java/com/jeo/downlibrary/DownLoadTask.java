@@ -49,7 +49,7 @@ public class DownLoadTask {
 
     @Override
     public String toString() {
-        return "id:"+id+" url:" + url + " name:" + name + " finishSize:" + finishSize + " allSize:" + allSize + " status:" + status;
+        return "id:" + id + " url:" + url + " name:" + name + " md5:" + md5 + " finishSize:" + finishSize + " allSize:" + allSize + " status:" + status;
     }
 
     public int getId() {
