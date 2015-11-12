@@ -19,6 +19,7 @@ public class DownLoadTask {
     private long finishSize;
     private long allSize;
     private int status;
+    private boolean startAll;
 
     private int position;//listView 所处位置
     private long speed;//下载速度
@@ -130,5 +131,13 @@ public class DownLoadTask {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public boolean isStartAll() {
+        return startAll;
+    }
+
+    public void setStartAll(boolean startAll) {
+        this.startAll = startAll;
     }
 }

@@ -11,5 +11,14 @@
         android:id="@+id/pull_to_refresh_listview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:dividerHeight="30dp"/>
+        android:layout_above="@+id/downAllBtn"
+        android:dividerHeight="30dp" />
+
+    <Button
+        android:id="@+id/downAllBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="一键下载"
+        android:textSize="18sp" />
 </RelativeLayout>

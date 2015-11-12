@@ -142,6 +142,16 @@ public class DownAdapter extends BaseAdapter {
             }
         };
         final DownLoadTask task = tasks.get(position);
+        if (task.getStatus() == DownLoadTask.STATUS_PENDDING) {
+            if (task.isStartAll()) {
+                Log.e(TAG,"isStartAll "+task);
+                task.setStatus(DownLoadTask.STATUS_RUNNING);
+                DownLoadManager.getInstance().addDownLoadTask(task, listener, true);
+
+                holder.downBtn.setText(res.getText(R.string.pause));
+            }
+
+        }
         holder.downBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -168,6 +178,7 @@ public class DownAdapter extends BaseAdapter {
 //                            tasks.remove(task);
                             deleteDownTask(task);
                         } else {
+                            //DownLoadTask.STATUS_PENDDING
                             task.setStatus(DownLoadTask.STATUS_RUNNING);
                             DownLoadManager.getInstance().addDownLoadTask(task, listener, true);
 

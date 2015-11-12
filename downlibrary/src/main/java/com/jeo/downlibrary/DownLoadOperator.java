@@ -1,6 +1,7 @@
 package com.jeo.downlibrary;
 
 
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -122,7 +123,7 @@ public class DownLoadOperator implements Runnable {
                             }
                         }
                     }
-                    Log.e(TAG, "total:" + total);
+//                    Log.e(TAG, "total:" + total);
                     raf.write(buffer, 0, count);
                     total += count;
 
@@ -140,6 +141,12 @@ public class DownLoadOperator implements Runnable {
                         }
                     }
                 }
+                is.close();
+                is = null;
+                raf.close();
+                raf = null;
+
+
                 //downLoad finish
                 long tmpSize = total - achieveSize;
                 long tmpTime = System.currentTimeMillis() - prevTime;
@@ -153,17 +160,21 @@ public class DownLoadOperator implements Runnable {
                 if (stopFlg) {
                     manager.onCancelDownLoadTask(task);
                 } else {
-                    String fileMd5 =task.getMd5();
-                    if(!TextUtils.isEmpty(fileMd5)){
-                        String md5 = MD5Util.getMd5String(filePath);
-                        if(!fileMd5.equals(md5)){
-                            Log.e(TAG,"md5 not right:"+fileMd5+"--"+md5);
-                            manager.onFailedDownLoadTask(task);
-                            break;
-                        }
+                    String fileMd5 = task.getMd5();
+                    if (!TextUtils.isEmpty(fileMd5)) {
+//                        String md5 = MD5Util.getFileMD5String(new File(filePath));
+//                        if (!fileMd5.equals(md5)) {
+//                            Log.e(TAG, "md5 not right:" + fileMd5 + "--" + md5);
+//                            manager.onFailedDownLoadTask(task);
+//                            break;
+//                        } else {
+//                            Log.e(TAG, "md5 is right:" + fileMd5 + "--" + md5);
+//                        }
+                        //不知为何如果不用异步线程计算Md5值,会导致内存奔溃
+                        new Md5AsyncTask().execute(new String[]{task.getMd5(),filePath});
                     }
 
-                    manager.onSuccessDownLoadTask(task);
+//                    manager.onSuccessDownLoadTask(task);
                 }
                 break;
             } catch (IOException e) {
@@ -178,7 +189,56 @@ public class DownLoadOperator implements Runnable {
                     continue;
                 }
 
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                        is = null;
+                    }
+                    if (raf != null) {
+                        raf.close();
+                        raf = null;
+                    }
+                } catch (Exception e) {
+                }
             }
         } while (true);
+    }
+
+    class Md5AsyncTask extends AsyncTask<String, Integer, Integer> {
+        @Override
+        protected Integer doInBackground(String... params) {
+            try {
+                String fileMd5 = params[0];
+                String filePath = params[1];
+                if (!TextUtils.isEmpty(fileMd5)) {
+                    String md5 = MD5Util.getFileMD5String(new File(filePath));
+                    if (!fileMd5.equals(md5)) {
+                        Log.e(TAG, "md5 not right:" + fileMd5 + "--" + md5);
+                        return -1;
+                    } else {
+                        Log.e(TAG, "md5 is right:" + fileMd5 + "--" + md5);
+                        return 1;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return 0;
+
+
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+
+            if (result == -1) {
+                manager.onFailedDownLoadTask(task);
+            } else if (result == 1) {
+                manager.onSuccessDownLoadTask(task);
+            }
+
+        }
     }
 }

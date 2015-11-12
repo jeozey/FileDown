@@ -75,7 +75,7 @@ public class SqlLiteDownLoadProvider implements DownLoadProvider {
     @Override
     public void updateDownTask(DownLoadTask task) {
         try {
-            Log.e(TAG, "updateDownTask:" + task);
+//            Log.e(TAG, "updateDownTask:" + task);
             ContentValues values = createDownLoadTaskValues(task);
             db.update(DBHelper.TABLE_NAME, values, DBHelper.URL + "=?", new String[]{task.getUrl()});
 

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -39,14 +40,15 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UnDownFragment extends Fragment {
+public class UnDownFragment extends Fragment implements View.OnClickListener{
     private final static String TAG = UnDownFragment.class.getName();
     private static final String SERVER_URL = "http://192.168.155.1:8080/";
-    private static final String SERVER_LIST_URL = SERVER_URL+"PhoneInfo/dv_getFileDown.apk";
+    private static final String SERVER_LIST_URL = SERVER_URL + "PhoneInfo/dv_getFileDown.apk";
     private int mScrollState;
     private PullToRefreshListView listView;
     private DownAdapter adapter;
     private List<DownLoadTask> tasks;
+    private Button downAllBtn;
 
     public UnDownFragment() {
         // Required empty public constructor
@@ -65,6 +67,8 @@ public class UnDownFragment extends Fragment {
         View parent = inflater.inflate(R.layout.fragment_undown, null);
         if (listView == null) {
             listView = (PullToRefreshListView) parent.findViewById(R.id.pull_to_refresh_listview);
+            downAllBtn = (Button)parent.findViewById(R.id.downAllBtn);
+            downAllBtn.setOnClickListener(this);
             initView();
 
         }
@@ -78,7 +82,21 @@ public class UnDownFragment extends Fragment {
 
     }
 
-    class GetJsonFromServer extends AsyncTask<String,Integer,String>{
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.downAllBtn:
+                for (DownLoadTask task: tasks){
+                    task.setStartAll(true);
+                }
+                adapter.notifyDataSetChanged();
+                break;
+            default:
+                break;
+        }
+    }
+
+    class GetJsonFromServer extends AsyncTask<String, Integer, String> {
         private HttpURLConnection initConnection(String url) throws IOException {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setConnectTimeout(30000);
@@ -93,20 +111,20 @@ public class UnDownFragment extends Fragment {
             try {
                 HttpURLConnection conn = initConnection(params[0]);
                 conn.connect();
-                if(conn.getResponseCode()==HttpURLConnection.HTTP_OK) {
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     InputStream is = conn.getInputStream();
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
                     int len = 0;
                     byte[] buffer = new byte[1024];
-                    while ((len=is.read(buffer))!=-1){
-                        os.write(buffer,0,len);
+                    while ((len = is.read(buffer)) != -1) {
+                        os.write(buffer, 0, len);
                     }
                     String content = os.toString();
                     return content;
-                }else{
+                } else {
                     return null;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -117,40 +135,43 @@ public class UnDownFragment extends Fragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             try {
-
-
-
-            if(!TextUtils.isEmpty(s)) {
-                JSONArray array = new JSONArray(s);
-                int len = array.length();
-                for (int i = 0;i<len;i++){
-                    JSONObject json = (JSONObject)array.get(i);
-                    DownLoadTask item = new DownLoadTask();
-                    item.setUrl(SERVER_URL+json.getString("name"));
-                    item.setMd5(json.getString("md5"));
-                    if (!tasks.contains(item)) {
-                        tasks.add(item);
-                    }
-                }
-                List<String> urls;
-                urls = Arrays.asList(Constants.URLS);
-                for (String url : urls) {
-
-
-                }
-                adapter.setFiles(tasks);
-
-                adapter.notifyDataSetChanged();
                 listView.onRefreshComplete();
-            }
-            }catch (JSONException e){
+
+
+                if (!TextUtils.isEmpty(s)) {
+                    JSONArray array = new JSONArray(s);
+                    int len = array.length();
+                    for (int i = 0; i < len; i++) {
+                        JSONObject json = (JSONObject) array.get(i);
+                        DownLoadTask item = new DownLoadTask();
+                        item.setUrl(SERVER_URL + "PhoneInfo/file/" + json.getString("name"));
+                        item.setMd5(json.getString("md5"));
+                        if (!tasks.contains(item)) {
+                            tasks.add(item);
+                        }
+                    }
+                    List<String> urls;
+                    urls = Arrays.asList(Constants.URLS);
+                    for (String url : urls) {
+
+
+                    }
+                    adapter.setFiles(tasks);
+
+                    adapter.notifyDataSetChanged();
+
+                }else{
+                    Toast.makeText(getActivity(), "没有获取到数据", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(getActivity(),"数据解析出错",Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "数据解析出错", Toast.LENGTH_LONG).show();
             }
         }
     }
 
     private void initView() {
+
         // Set a listener to be invoked when the list should be refreshed.
         listView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
 
@@ -238,11 +259,11 @@ public class UnDownFragment extends Fragment {
             int lastVisiablePosition = listView.getLastVisiblePosition();
 //            int position = task.getPosition();
             int position = getRightPosition(task);
-            Log.e(TAG, "first:" + firstVisiablePosition + " last:" + lastVisiablePosition + " pos:" + position);
+//            Log.e(TAG, "first:" + firstVisiablePosition + " last:" + lastVisiablePosition + " pos:" + position);
 
             if (position >= firstVisiablePosition && position <= lastVisiablePosition) {
                 View view = listView.getChildAt(position - firstVisiablePosition + 1);
-                if (view.getTag() instanceof DownAdapter.ViewHolder) {
+                if (view!=null&&view.getTag() instanceof DownAdapter.ViewHolder) {
                     DownAdapter.ViewHolder holder = (DownAdapter.ViewHolder) view.getTag();
                     ProgressBar progressBar = holder.downProgressBar;
                     progressBar.setMax(100);
