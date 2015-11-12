@@ -261,7 +261,7 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
             int position = getRightPosition(task);
 //            Log.e(TAG, "first:" + firstVisiablePosition + " last:" + lastVisiablePosition + " pos:" + position);
 
-            if (position >= firstVisiablePosition && position <= lastVisiablePosition) {
+            if (position >= firstVisiablePosition-1 && position <= lastVisiablePosition+1) {
                 View view = listView.getChildAt(position - firstVisiablePosition + 1);
                 if (view!=null&&view.getTag() instanceof DownAdapter.ViewHolder) {
                     DownAdapter.ViewHolder holder = (DownAdapter.ViewHolder) view.getTag();
