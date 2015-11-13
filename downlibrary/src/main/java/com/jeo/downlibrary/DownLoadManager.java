@@ -57,7 +57,7 @@ public class DownLoadManager {
     }
 
     public void addDownLoadTask(DownLoadTask task) {
-        addDownLoadTask(task, null,true);
+        addDownLoadTask(task, null, true);
     }
 
 
@@ -161,6 +161,15 @@ public class DownLoadManager {
 
 
     public void removeTask(DownLoadTask task) {
+        try {
+            taskOperators.remove(task);
+            taskListeners.remove(task);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeTaskAndDel(DownLoadTask task) {
         try {
             taskOperators.remove(task);
             taskListeners.remove(task);

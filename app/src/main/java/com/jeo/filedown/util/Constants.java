@@ -1,9 +1,16 @@
-package com.jeo.filedown;
+package com.jeo.filedown.util;
 
 /**
  * Created by 志文 on 2015/10/30 0030.
  */
 public class Constants {
+        public static final int MSG_DOWN_FILE_PROGRESS = 100;
+        public static final String SERVER_URL = "http://192.168.155.1:8080/";
+        public static final String SERVER_LIST_URL = SERVER_URL + "PhoneInfo/dv_getFileDown.apk";
+
+
+
+
         static final String BASE = "http://i.imgur.com/";
         static final String EXT = ".jpg";
         static final String[] URLS = {
@@ -43,6 +50,5 @@ public class Constants {
                 "http://192.168.155.1:8080/10.apk",
         };
 
-        public static final int MSG_DOWN_FILE_PROGRESS = 100;
 
 }

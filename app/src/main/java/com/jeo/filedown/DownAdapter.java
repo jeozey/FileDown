@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.jeo.downlibrary.DownLoadListener;
 import com.jeo.downlibrary.DownLoadManager;
 import com.jeo.downlibrary.DownLoadTask;
+import com.jeo.filedown.util.Constants;
+import com.jeo.filedown.util.ViewHolderUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -211,7 +213,7 @@ public class DownAdapter extends BaseAdapter {
                         File file = new File(task.getPath());
                         if (file.exists()) {
                             file.delete();
-                            DownLoadManager.getInstance().removeTask(task);
+                            DownLoadManager.getInstance().removeTaskAndDel(task);
                             tasks.remove(task);
                             notifyDataSetChanged();
                         }

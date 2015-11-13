@@ -1,8 +1,9 @@
-package com.jeo.filedown;
+package com.jeo.filedown.util;
 
 import android.util.Log;
 
 import com.jeo.downlibrary.DownLoadTask;
+import com.jeo.filedown.DownAdapter;
 
 /**
  * Created by 志文 on 2015/10/30 0030.

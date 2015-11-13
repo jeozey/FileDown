@@ -210,7 +210,7 @@ public class DownLoadOperator implements Runnable {
                 String filePath = params[1];
                 if (!TextUtils.isEmpty(fileMd5)) {
                     String md5 = MD5Util.getFileMD5String(new File(filePath));
-                    if (fileMd5.equals(md5)) {
+                    if (!fileMd5.equals(md5)) {
                         Log.e(TAG, "md5 not right:" + fileMd5 + "--" + md5);
                         return -1;
                     } else {

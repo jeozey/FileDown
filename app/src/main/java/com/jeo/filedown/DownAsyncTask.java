@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.jeo.downlibrary.DownLoadTask;
+import com.jeo.filedown.util.Constants;
 import com.jeo.filedown.util.OkHttpUtil;
 
 import java.io.File;

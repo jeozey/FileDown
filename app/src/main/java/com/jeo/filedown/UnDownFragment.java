@@ -20,6 +20,8 @@ import android.widget.Toast;
 import com.jeo.downlibrary.DownLoadManager;
 import com.jeo.downlibrary.DownLoadTask;
 import com.jeo.filedown.eu.erikw.PullToRefreshListView;
+import com.jeo.filedown.util.Constants;
+import com.jeo.filedown.util.ViewHolderUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,8 +40,6 @@ import java.util.List;
  */
 public class UnDownFragment extends Fragment implements View.OnClickListener{
     private final static String TAG = UnDownFragment.class.getName();
-    private static final String SERVER_URL = "http://192.168.155.1:8080/";
-    private static final String SERVER_LIST_URL = SERVER_URL + "PhoneInfo/dv_getFileDown.apk";
     private int mScrollState;
     private PullToRefreshListView listView;
     private DownAdapter adapter;
@@ -140,7 +140,7 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
                     for (int i = 0; i < len; i++) {
                         JSONObject json = (JSONObject) array.get(i);
                         DownLoadTask item = new DownLoadTask();
-                        item.setUrl(SERVER_URL + "PhoneInfo/file/" + json.getString("name"));
+                        item.setUrl(Constants.SERVER_URL + "PhoneInfo/file/" + json.getString("name"));
                         item.setMd5(json.getString("md5"));
                         if (!tasks.contains(item)) {
                             tasks.add(item);
@@ -169,7 +169,7 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
             public void onRefresh() {
                 // Your code to refresh the list contents
 
-                new GetJsonFromServer().execute(SERVER_LIST_URL);
+                new GetJsonFromServer().execute(Constants.SERVER_LIST_URL);
 
             }
         });
