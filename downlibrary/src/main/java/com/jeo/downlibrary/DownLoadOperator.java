@@ -145,7 +145,9 @@ public class DownLoadOperator implements Runnable {
                 is = null;
                 raf.close();
                 raf = null;
+                buffer = null;
                 conn.disconnect();
+
 
                 //downLoad finish
                 long tmpSize = total - achieveSize;

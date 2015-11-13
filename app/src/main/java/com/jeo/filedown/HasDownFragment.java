@@ -1,38 +1,39 @@
 package com.jeo.filedown;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.Button;
 
 import com.jeo.downlibrary.DownLoadManager;
 import com.jeo.downlibrary.DownLoadTask;
 import com.jeo.filedown.eu.erikw.PullToRefreshListView;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HasDownFragment extends Fragment {
+public class HasDownFragment extends Fragment implements View.OnClickListener {
 
 
     private final static String TAG = UnDownFragment.class.getName();
     private PullToRefreshListView listView;
     private DownAdapter adapter;
     private List<DownLoadTask> tasks;
+    private Button delAllBtn;
 
     public HasDownFragment() {
         // Required empty public constructor
@@ -42,6 +43,66 @@ public class HasDownFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate:" + (listView == null));
         super.onCreate(savedInstanceState);
+
+        //注册EventBus
+        EventBus.getDefault().register(this);
+
+    }
+
+    public void onEvent(MessageEvent event) {
+        Log.e(TAG, "onEvent");
+        if (adapter != null) {
+            tasks.add(event.getTask());
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    ;
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        Log.e(TAG, "onResume:" + (listView == null));
+        super.onResume();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.delAllBtn:
+                deleteAllDownTask();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void deleteAllDownTask() {
+        new AlertDialog.Builder(getActivity()).setTitle("是否清空所有已下载文件?").setNegativeButton("否", null).setPositiveButton("是", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    for (DownLoadTask task : tasks) {
+                        File file = new File(task.getPath());
+                        if (file.exists()) {
+                            file.delete();
+                            DownLoadManager.getInstance().removeTaskAndDel(task);
+
+                        }
+                    }
+                    tasks.clear();
+                    adapter.notifyDataSetChanged();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).show();
     }
 
     class GetFinishTasks extends AsyncTask<Void, Integer, Integer> {
@@ -74,6 +135,8 @@ public class HasDownFragment extends Fragment {
         Log.e(TAG, "onCreateView:" + (listView == null));
         View parent = inflater.inflate(R.layout.fragment_hasdown, null);
         if (listView == null) {
+            delAllBtn = (Button) parent.findViewById(R.id.delAllBtn);
+            delAllBtn.setOnClickListener(this);
             listView = (PullToRefreshListView) parent.findViewById(R.id.pull_to_refresh_listview);
             initView();
 

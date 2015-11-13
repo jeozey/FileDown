@@ -2,10 +2,10 @@
     <string name="app_name">FileDown</string>
 
 
-    <string name="ptr_pull_to_refresh">Pull to refresh</string>
-    <string name="ptr_release_to_refresh">Release to refresh</string>
-    <string name="ptr_refreshing">Refreshing…</string>
-    <string name="ptr_last_updated">Updated: %1$s</string>
+    <string name="ptr_pull_to_refresh">下拉刷新</string>
+    <string name="ptr_release_to_refresh">释放</string>
+    <string name="ptr_refreshing">正在获取…</string>
+    <string name="ptr_last_updated">已更新: %1$s</string>
 
     <string name="start">开始</string>
     <string name="pause">暂停</string>

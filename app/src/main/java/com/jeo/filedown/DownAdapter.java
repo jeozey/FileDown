@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Created by 志文 on 2015/10/30 0030.
  */
@@ -81,6 +83,7 @@ public class DownAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.downTitle = (TextView) convertView.findViewById(R.id.downTitle);
             holder.downPercent = (TextView) convertView.findViewById(R.id.downPercent);
+            holder.downSpeed = (TextView) convertView.findViewById(R.id.downSpeed);
             holder.downProgressBar = (ProgressBar) convertView.findViewById(R.id.downProgressBar);
             holder.downBtn = (Button) convertView.findViewById(R.id.downBtn);
 
@@ -131,6 +134,9 @@ public class DownAdapter extends BaseAdapter {
                 tasks.remove(task);
 
                 notifyDataSetChanged();
+
+                EventBus.getDefault().post(
+                        new MessageEvent(task));
             }
 
             @Override
@@ -147,9 +153,9 @@ public class DownAdapter extends BaseAdapter {
             }
         };
         final DownLoadTask task = tasks.get(position);
-        if (task.getStatus() == DownLoadTask.STATUS_PENDDING) {
+        if (task.getStatus() != DownLoadTask.STATUS_RUNNING) {
             if (task.isStartAll()) {
-                Log.e(TAG,"isStartAll "+task);
+                Log.e(TAG, "isStartAll " + task);
                 task.setStatus(DownLoadTask.STATUS_RUNNING);
                 DownLoadManager.getInstance().addDownLoadTask(task, listener, true);
 
@@ -217,7 +223,7 @@ public class DownAdapter extends BaseAdapter {
                             tasks.remove(task);
                             notifyDataSetChanged();
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -229,6 +235,7 @@ public class DownAdapter extends BaseAdapter {
     public class ViewHolder {
         public TextView downTitle;
         public TextView downPercent;
+        public TextView downSpeed;
         public ProgressBar downProgressBar;
         public Button downBtn;
     }

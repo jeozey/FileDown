@@ -21,6 +21,7 @@ import com.jeo.downlibrary.DownLoadManager;
 import com.jeo.downlibrary.DownLoadTask;
 import com.jeo.filedown.eu.erikw.PullToRefreshListView;
 import com.jeo.filedown.util.Constants;
+import com.jeo.filedown.util.SpeedUtil;
 import com.jeo.filedown.util.ViewHolderUtil;
 
 import org.json.JSONArray;
@@ -140,7 +141,9 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
                     for (int i = 0; i < len; i++) {
                         JSONObject json = (JSONObject) array.get(i);
                         DownLoadTask item = new DownLoadTask();
-                        item.setUrl(Constants.SERVER_URL + "PhoneInfo/file/" + json.getString("name"));
+                        String name = json.getString("name");
+                        item.setName(name);
+                        item.setUrl(Constants.SERVER_URL + "PhoneInfo/file/" + name);
                         item.setMd5(json.getString("md5"));
                         if (!tasks.contains(item)) {
                             tasks.add(item);
@@ -207,6 +210,10 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
             if (DownLoadTask.STATUS_RUNNING == task.getStatus()) {
                 task.setStatus(DownLoadTask.STATUS_PENDDING);
             }
+            //出错的情况,重下
+            if (task.getFinishSize() > task.getAllSize()) {
+                task.setFinishSize(0);
+            }
             tasks.add(task);
 
         }
@@ -261,16 +268,18 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
                         int percent = (int) ((100 * task.getFinishSize()) / task.getAllSize());
                         progressBar.setProgress(percent);
                         holder.downPercent.setText(percent + "%");
+
+                        holder.downSpeed.setText(SpeedUtil.getSpeed(task.getSpeed()));
                     }
                     Log.e(TAG, "curr:" + progressBar.getProgress() + " max:" + progressBar.getMax() + " all:" + task.getAllSize());
-                    DownLoadTask file = (DownLoadTask) adapter.getItem(position);
-                    file.setFinishSize(task.getFinishSize());
+                    DownLoadTask t = (DownLoadTask) adapter.getItem(position);
+                    t.setFinishSize(t.getFinishSize());
 
                     if (progressBar.getProgress() == 100) {
                         //为什么这句没有直接调用getView
 //                        listView.getAdapter().getView(position, view, listView); // Tell the adapter to update this view
 //                   adapter.notifyDataSetChanged();
-                        ViewHolderUtil.updateViewHolder(task, holder);
+                        ViewHolderUtil.updateViewHolder(t, holder);
                     }
                 }
             } else {
