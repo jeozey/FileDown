@@ -133,6 +133,9 @@ public class DownAdapter extends BaseAdapter {
 
             @Override
             public void onFailed(DownLoadTask task) {
+                DownLoadManager.getInstance().removeTask(task);
+
+                notifyDataSetChanged();
                 Log.e(TAG, "onFailed...");
             }
 

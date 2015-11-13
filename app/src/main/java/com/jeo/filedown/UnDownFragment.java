@@ -26,16 +26,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -150,12 +146,6 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
                             tasks.add(item);
                         }
                     }
-                    List<String> urls;
-                    urls = Arrays.asList(Constants.URLS);
-                    for (String url : urls) {
-
-
-                    }
                     adapter.setFiles(tasks);
 
                     adapter.notifyDataSetChanged();
@@ -254,7 +244,7 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
             Log.e(TAG, "fileItem is null");
             return;
         }
-        if (mScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+//        if (mScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
             int firstVisiablePosition = listView.getFirstVisiblePosition();
             int lastVisiablePosition = listView.getLastVisiblePosition();
 //            int position = task.getPosition();
@@ -286,7 +276,7 @@ public class UnDownFragment extends Fragment implements View.OnClickListener{
             } else {
                 Log.e(TAG, "Error position!");
             }
-        }
+//        }
 
     }
 

@@ -60,9 +60,9 @@ public class DownLoadOperator implements Runnable {
         HttpURLConnection conn = (HttpURLConnection) new URL(task.getUrl()).openConnection();
         conn.setConnectTimeout(CONNECTION_TIME_OUT);
         conn.setReadTimeout(READ_TIME_OUT);
-        conn.setUseCaches(true);
         //断点续传
-        if (task.getFinishSize() != 0) {
+        if (!(DownLoadTask.STATUS_ERROR == task.getStatus()) && task.getFinishSize() != 0) {
+            Log.e(TAG, "set range:" + task.getFinishSize());
             conn.setRequestProperty("Range", "bytes=" + task.getFinishSize() + "-");
         }
         return conn;
@@ -145,7 +145,7 @@ public class DownLoadOperator implements Runnable {
                 is = null;
                 raf.close();
                 raf = null;
-
+                conn.disconnect();
 
                 //downLoad finish
                 long tmpSize = total - achieveSize;
@@ -186,18 +186,15 @@ public class DownLoadOperator implements Runnable {
                     break;
                 } else {
                     retryTimes++;
-                    continue;
                 }
 
             } finally {
                 try {
                     if (is != null) {
                         is.close();
-                        is = null;
                     }
                     if (raf != null) {
                         raf.close();
-                        raf = null;
                     }
                 } catch (Exception e) {
                 }
@@ -213,7 +210,7 @@ public class DownLoadOperator implements Runnable {
                 String filePath = params[1];
                 if (!TextUtils.isEmpty(fileMd5)) {
                     String md5 = MD5Util.getFileMD5String(new File(filePath));
-                    if (!fileMd5.equals(md5)) {
+                    if (fileMd5.equals(md5)) {
                         Log.e(TAG, "md5 not right:" + fileMd5 + "--" + md5);
                         return -1;
                     } else {
@@ -234,6 +231,9 @@ public class DownLoadOperator implements Runnable {
             super.onPostExecute(result);
 
             if (result == -1) {
+                //再次下载时候Range为0
+                task.setAllSize(0);
+                task.setFinishSize(0);
                 manager.onFailedDownLoadTask(task);
             } else if (result == 1) {
                 manager.onSuccessDownLoadTask(task);
